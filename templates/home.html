@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ args.title.as_deref().unwrap_or("MicroBin") }}</title>
+    <style>
+        :root { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --primary: #3b82f6; --accent: #60a5fa; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .hero { text-align: center; max-width: 500px; width: 90%; }
+        h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .search-box { position: relative; background: var(--card-bg); padding: 0.5rem; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); display: flex; border: 1px solid #334155; }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 1rem 1.5rem; font-size: 1.25rem; outline: none; }
+        button { background: var(--primary); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: var(--accent); transform: translateY(-1px); }
+        .hint { margin-top: 1.5rem; color: #94a3b8; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>MicroBin</h1>
+        <p style="margin-bottom: 2rem; color: #94a3b8;">The minimal, URL-first paste service.</p>
+        <form class="search-box" id="slug-form">
+            <input type="text" id="slug-input" placeholder="Enter keyword..." autocomplete="off" spellcheck="false" required>
+            <button type="submit">Open</button>
+        </form>
+        <p class="hint">Type a keyword to create or view a paste.</p>
+    </div>
+    <script>
+        document.getElementById('slug-form').onsubmit = (e) => {
+            e.preventDefault();
+            let slug = document.getElementById('slug-input').value.toLowerCase().trim().replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
+            if (slug) window.location.href = '/' + slug;
+        };
+    </script>
+</body>
+</html>
