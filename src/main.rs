@@ -16,6 +16,9 @@ use std::io::Write;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use std::thread;
+use std::time::Duration;
+
 pub mod args;
 pub mod pasta;
 
@@ -44,6 +47,17 @@ pub struct AppState {
     pub pastas: Mutex<HashMap<String, Pasta>>,
 }
 
+fn start_cleanup_thread(state: web::Data<AppState>) {
+    thread::spawn(move || {
+        loop {
+            thread::sleep(Duration::from_secs(60));
+            if let Ok(mut pastas) = state.pastas.lock() {
+                crate::util::misc::remove_expired(&mut pastas);
+            }
+        }
+    });
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     Builder::new()
@@ -60,9 +74,10 @@ async fn main() -> std::io::Result<()> {
         .init();
 
     log::info!(
-        "MicroBin starting on http://{}:{}",
+        "LinkDrop starting on http://{}:{} (Public URL: {})",
         ARGS.bind.to_string(),
-        ARGS.port.to_string()
+        ARGS.port.to_string(),
+        if ARGS.public_path.is_some() { ARGS.public_path_as_str() } else { "None".to_string() }
     );
 
     match fs::create_dir_all(format!("{}/public", ARGS.data_dir)) {
@@ -88,15 +103,15 @@ async fn main() -> std::io::Result<()> {
         start_telemetry_thread();
     }
 
+    start_cleanup_thread(data.clone());
+
     HttpServer::new(move || {
         App::new()
             .app_data(data.clone())
+            .app_data(web::PayloadConfig::new(1024 * 1024)) // 1MB Limit
             .wrap(middleware::NormalizePath::trim())
             .wrap(
                 middleware::Logger::new(r#"%{r}a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#)
-            // `%{r}a` is actix's built‑in "real ip" token, which uses
-            // ConnectionInfo::realip_remote_addr(). it picks up headers like
-            // X-Real-IP / X-Forwarded-For when the framework is behind a proxy.
             )
             // Conditional / Public Services
             // Core URL-Driven Routes

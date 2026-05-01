@@ -1,77 +1,37 @@
+# LinkDrop
 
-![Screenshot](.github/index.png)
+A minimalist, high-speed paste service built in Rust. Designed for privacy, OLED-dark aesthetics, and a "stealth" workflow.
 
-# MicroBin
-
-![Build](https://github.com/szabodanika/microbin/actions/workflows/rust.yml/badge.svg)
-[![crates.io](https://img.shields.io/crates/v/microbin.svg)](https://crates.io/crates/microbin)
-[![Docker Image](https://github.com/szabodanika/microbin/actions/workflows/release.yml/badge.svg)](https://hub.docker.com/r/danielszabo99/microbin)
-[![Docker Pulls](https://img.shields.io/docker/pulls/danielszabo99/microbin?label=Docker%20pulls)](https://img.shields.io/docker/pulls/danielszabo99/microbin?label=Docker%20pulls)
-
-MicroBin is a super tiny, feature-rich, configurable, self-contained and self-hosted paste bin web application. It is very easy to set up and use, and will only require a few megabytes of memory and disk storage. It takes only a couple minutes to set it up, why not give it a try now?
-
-## Get your own MicroBin server at [my.microbin.eu](https://my.microbin.eu)!
-
-Test MicroBin at [pub.microbin.eu](https://pub.microbin.eu)!
-
-### Or host MicroBin yourself
-
-Run our quick docker setup script ([DockerHub](https://hub.docker.com/r/danielszabo99/microbin)):
-```bash
-bash <(curl -s https://microbin.eu/docker.sh)
-```
-
-Or install it manually from [Cargo](https://crates.io/crates/microbin):
+## Run with Docker
 
 ```bash
-cargo install microbin;
-curl -L -O https://raw.githubusercontent.com/szabodanika/microbin/master/.env;
-source .env;
-microbin
+docker run -p 8080:8080 \
+  -e MICROBIN_PUBLIC_PATH=your-domain.com \
+  -v ${PWD}/data:/app/microbin_data \
+  linkdrop
 ```
 
-On our website [microbin.eu](https://microbin.eu), you will find the following:
-
-- [Screenshots](https://microbin.eu/screenshots/)
-- [Guide and Documentation](https://microbin.eu/docs/intro)
-- [Roadmap](https://microbin.eu/roadmap)
+## Config
+- `MICROBIN_PUBLIC_PATH`: Your domain (e.g. `link.example.com`). Used for QR codes and share links.
+- `MICROBIN_DATA_DIR`: Path to the SQLite database and storage.
+- `MICROBIN_PORT`: Port to listen on (default: 8080).
+- `MICROBIN_BIND`: IP to bind to (default: 0.0.0.0).
 
 ## Features
+- **Minimalist UI**: Pure black background, zero distraction.
+- **Ephemeral**: Burn-after-read and auto-expiry support.
+- **Mobile Friendly**: Integrated QR codes for instant transfer.
+- **Read-Only Mode**: Lock pastes so they can't be edited.
+- **Security**: 1MB payload limits and slug sanitization.
+- **Pure Share**: Special preview mode (`?created=true`) that doesn't count as a "view".
 
-- Entirely self-contained executable, MicroBin is a single file!
-- Server-side and client-side E2E encryption
-- File uploads (e.g. `server.com/file/pig-dog-cat`)
-- Raw text serving (e.g. `server.com/raw/pig-dog-cat`)
-- QR code support
-- URL shortening and redirection
-- Animal names instead of random numbers for upload identifiers (64 animals)
-- Multiple attachments
-- SQLite and JSON database support
-- Private and public, editable and uneditable, automatically and never expiring uploads
-- Automatic dark mode and custom styling support with very little CSS and only vanilla JS (see [`water.css`](https://github.com/kognise/water.css))
-- And much more!
+## Development
+Requires Rust and Cargo.
 
-## What is an upload?
+```bash
+cargo build --release
+./target/release/linkdrop
+```
 
-In MicroBin, an upload can be:
-
-- A text that you want to paste from one machine to another, e.g. some code,
-- Files that you want to share, e.g. a video that is too large for Discord, a zip with a code project in it or an image,
-- A URL redirection.
-
-## When is MicroBin useful?
-
-You can use MicroBin:
-
-- To send long texts to other people,
-- To send large files to other people,
-- To share secrets or sensitive documents securely,
-- As a URL shortener/redirect service,
-- To serve content on the web, eg . configuration files for testing, images, or any other file content using the Raw functionality,
-- To move files between your desktop and a server you access from the console,
-- As a "postbox" service where people can upload their files or texts, but they cannot see or remove what others sent you,
-- Or even to take quick notes.
-
-...and many other things, why not get creative?
-
-MicroBin and MicroBin.eu are available under the [BSD 3-Clause License](LICENSE).
+---
+[BSD 3-Clause License](LICENSE)

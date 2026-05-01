@@ -1,14 +1,14 @@
 [package]
-name = "microbin"
-version = "2.1.4"
+name = "linkdrop"
+version = "0.1.0"
 edition = "2021"
 rust-version = "1.74.0"
-authors = ["Daniel Szabo <daniel@microbin.eu>"]
+authors = ["Antigravity <antigravity@linkdrop.io>"]
 license = "BSD-3-Clause"
-description = "Simple, performant, configurable, entirely self-contained Pastebin and URL shortener."
+description = "High-performance, URL-driven, self-hosted paste service with a minimalist dark aesthetic."
 readme = "README.md"
-homepage = "https://microbin.eu"
-repository = "https://github.com/szabodanika/microbin"
+homepage = "https://github.com/PrincejiCoder/Clip-Transfer"
+repository = "https://github.com/PrincejiCoder/Clip-Transfer"
 keywords = ["pastebin", "filesharing", "microbin", "actix", "selfhosted"]
 
 

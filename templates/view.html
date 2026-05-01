@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-variant": "#343535",
+                "on-tertiary-fixed-variant": "#474646",
+                "surface-container": "#1f2020",
+                "on-secondary-container": "#00686f",
+                "on-surface-variant": "#c4c7c8",
+                "on-error-container": "#ffdad6",
+                "surface-container-lowest": "#0d0e0f",
+                "on-tertiary": "#313030",
+                "on-surface": "#e3e2e2",
+                "error-container": "#93000a",
+                "primary": "#ffffff",
+                "inverse-surface": "#e3e2e2",
+                "outline": "#8e9192",
+                "primary-fixed": "#e2e2e2",
+                "surface-container-low": "#1b1c1c",
+                "surface-container-highest": "#343535",
+                "background": "#000000",
+                "on-secondary-fixed": "#002022",
+                "on-primary": "#2f3131",
+                "tertiary": "#ffffff",
+                "secondary-container": "#00eefc",
+                "primary-fixed-dim": "#c6c6c7",
+                "surface-dim": "#121414",
+                "secondary-fixed": "#7df4ff",
+                "on-primary-fixed": "#1a1c1c",
+                "primary-container": "#e2e2e2",
+                "tertiary-fixed-dim": "#c8c6c5",
+                "tertiary-container": "#e5e2e1",
+                "on-error": "#690005",
+                "secondary": "#d3fbff",
+                "surface": "#000000",
+                "secondary-fixed-dim": "#00dbe9",
+                "on-primary-fixed-variant": "#454747",
+                "on-tertiary-container": "#656464",
+                "on-primary-container": "#636565",
+                "on-secondary-fixed-variant": "#004f54",
+                "on-background": "#e3e2e2",
+                "tertiary-fixed": "#e5e2e1",
+                "outline-variant": "#444748",
+                "surface-container-high": "#292a2a",
+                "on-tertiary-fixed": "#1c1b1b",
+                "error": "#ffb4ab"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "12px",
+                "full": "9999px"
+            },
+            "spacing": {
+                "base": "8px",
+                "stack-md": "24px",
+                "stack-lg": "48px",
+                "stack-sm": "12px",
+                "gutter": "24px",
+                "container-max": "640px"
+            },
+            "fontFamily": {
+                "body-lg": ["Inter"],
+                "h2": ["Inter"],
+                "label-caps": ["Inter"],
+                "body-md": ["Inter"],
+                "display": ["Inter"],
+                "h1": ["Inter"]
+            },
+            "fontSize": {
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "h2": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #000000; color: #e3e2e2; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-effect { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="bg-black text-zinc-600 font-inter tracking-tight uppercase font-bold border-b border-zinc-900 flat no-shadows fixed top-0 left-0 right-0 z-50">
+<div class="flex justify-between items-center w-full max-w-[640px] mx-auto px-4 h-16">
+<a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-cyan-400" data-icon="terminal">terminal</span>
+<span class="text-lg font-black tracking-widest text-white uppercase">LinkDrop</span>
+</a>
+<div class="flex items-center gap-4">
+{% if can_edit %}
+<a href="/{{ slug }}" class="text-zinc-600 hover:text-cyan-400 transition-colors active:scale-95 transition-transform p-2">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</a>
+{% endif %}
+<a href="/" class="text-zinc-600 hover:text-cyan-400 transition-colors active:scale-95 transition-transform p-2">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</a>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="max-w-[1024px] mx-auto px-4 pt-6 pb-6 h-[calc(100vh-64px)] flex flex-col space-y-4">
+<!-- Burn Alert Banner -->
+{% if pasta.burn_after_reads > 0 %}
+<div class="shrink-0 bg-error-container/10 border border-error/20 rounded-xl p-4 flex items-center gap-3 animate-pulse">
+<span class="material-symbols-outlined text-error text-[20px]" data-icon="bolt">bolt</span>
+<p class="font-label-caps text-error text-[10px] uppercase tracking-widest">Warning: This link will be destroyed after {{ pasta.burn_after_reads }} views.</p>
+</div>
+{% endif %}
+
+<!-- Context Header -->
+<div class="flex items-center justify-between shrink-0">
+    <div class="space-y-1">
+        <h2 class="font-h1 text-h2 text-white uppercase tracking-tighter">{{ slug }}</h2>
+        <div class="flex items-center gap-3">
+            <span class="bg-surface-container border border-outline-variant px-2 py-0.5 rounded text-zinc-400 font-label-caps text-[9px] uppercase">{{ pasta.pasta_type }} / {{ pasta.total_size_as_string() }}</span>
+            <span class="text-zinc-600 font-label-caps text-[9px] uppercase tracking-tight">CREATED {{ pasta.short_last_read_time_ago_as_string() }}</span>
+        </div>
+    </div>
+    <div class="text-cyan-400 font-mono text-lg font-bold">/{{ slug }}</div>
+</div>
+
+<!-- Top Action Bar (Match create layout) -->
+<div class="shrink-0 flex items-center justify-between gap-4 bg-surface-container border border-zinc-900 p-3 rounded-lg">
+    <div class="flex items-center gap-4">
+        <button id="copy-button" class="bg-cyan-400 text-black px-5 py-2 rounded font-bold text-[13px] hover:brightness-110 transition-all active:scale-95 shadow-[0_0_15px_rgba(0,238,252,0.1)] flex items-center gap-2 uppercase tracking-widest">
+            <span class="material-symbols-outlined font-bold text-[18px]" data-icon="content_copy">content_copy</span>
+            <span>Copy Content</span>
+        </button>
+        {% if can_edit %}
+        <a href="/{{ slug }}" class="text-zinc-500 hover:text-white transition-colors flex items-center gap-1 font-label-caps text-[10px] uppercase tracking-widest px-3 border-l border-zinc-800">
+            <span class="material-symbols-outlined text-[16px]" data-icon="edit">edit</span>
+            <span>Edit Drop</span>
+        </a>
+        {% endif %}
+    </div>
+    <div class="text-zinc-500 font-label-caps text-[10px] uppercase tracking-widest border-l border-zinc-800 pl-4">
+        {% if can_edit %}Editable{% else %}Read-Only{% endif %}
+    </div>
+</div>
+
+<!-- Code Block Container (Full height) -->
+<section class="flex-grow flex flex-col bg-surface-container border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
+    <div class="p-6 flex-grow overflow-auto">
+        <pre class="font-mono text-body-md text-white leading-relaxed m-0"><code id="paste-content">{{ highlighted_content|safe }}</code></pre>
+    </div>
+</section>
+</main>
+
+<!-- Success Toast (Hidden by default, used for interaction reference) -->
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[60] bg-surface-container-high/90 backdrop-blur-xl border border-zinc-700 px-6 py-3 rounded-full flex items-center gap-3 opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4" id="copy-toast">
+<span class="material-symbols-outlined text-cyan-400" data-icon="check_circle">check_circle</span>
+<span class="font-label-caps text-[12px] text-white tracking-widest uppercase">Copied to Clipboard</span>
+</div>
+
+<script>
+    const copyButton = document.getElementById('copy-button');
+    const pasteContent = document.getElementById('paste-content');
+    const copyToast = document.getElementById('copy-toast');
+
+    copyButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(pasteContent.innerText || pasteContent.textContent).then(() => {
+            copyToast.classList.remove('opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                copyToast.classList.add('opacity-0', 'translate-y-4');
+            }, 2000);
+        });
+    });
+</script>
+</body></html>
