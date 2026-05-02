@@ -2,7 +2,7 @@
 
 ## Version Support
 
-Currently we only have capacity to support the latest version of MicroBin. We recommend that you always update to the newest one and check our pages regularly for announcements.
+Currently we only have capacity to support the latest version of LinkDrop. We recommend that you always update to the newest one and check our pages regularly for announcements.
 
 ## Reporting a Vulnerability
 

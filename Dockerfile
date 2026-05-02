@@ -1,41 +1,26 @@
-FROM rust:latest as build
+FROM rust:1.75-slim AS build
 
 WORKDIR /app
 
-RUN \
-  DEBIAN_FRONTEND=noninteractive \
-  apt-get update &&\
-  apt-get -y install ca-certificates tzdata
+RUN apt-get update && apt-get install -y \
+    ca-certificates tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
-RUN \
-  CARGO_NET_GIT_FETCH_WITH_CLI=true \
-  cargo build --release
+RUN RUSTFLAGS="-C target-cpu=native" cargo build --release && \
+    strip target/release/linkdrop
 
-# https://hub.docker.com/r/bitnami/minideb
-FROM bitnami/minideb:latest
+FROM debian:bookworm-slim
 
-# linkdrop will be in /app
 WORKDIR /app
 
-RUN mkdir -p /usr/share/zoneinfo
+RUN apt-get update && apt-get install -y \
+    ca-certificates tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
-# copy time zone info
-COPY --from=build \
-  /usr/share/zoneinfo \
-  /usr/share/
+COPY --from=build /app/target/release/linkdrop /usr/local/bin/linkdrop
 
-COPY --from=build \
-  /etc/ssl/certs/ca-certificates.crt \
-  /etc/ssl/certs/ca-certificates.crt
-
-# copy built executable
-COPY --from=build \
-  /app/target/release/linkdrop \
-  /usr/bin/linkdrop
-
-# Expose webport used for the webserver to the docker runtime
 EXPOSE 8080
 
 ENTRYPOINT ["linkdrop"]

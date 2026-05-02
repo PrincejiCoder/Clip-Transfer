@@ -5,17 +5,14 @@ A minimalist, high-speed paste service built in Rust. Designed for privacy, OLED
 ## Run with Docker
 
 ```bash
-docker run -p 8080:8080 \
-  -e MICROBIN_PUBLIC_PATH=your-domain.com \
-  -v ${PWD}/data:/app/microbin_data \
-  linkdrop
+docker run -p 8080:8080 \ -e LINKDROP_PUBLIC_PATH=your-domain.com \ -v ${PWD}/data:/app/LINKDROP_data \linkdrop
 ```
 
 ## Config
-- `MICROBIN_PUBLIC_PATH`: Your domain (e.g. `link.example.com`). Used for QR codes and share links.
-- `MICROBIN_DATA_DIR`: Path to the SQLite database and storage.
-- `MICROBIN_PORT`: Port to listen on (default: 8080).
-- `MICROBIN_BIND`: IP to bind to (default: 0.0.0.0).
+- `LINKDROP_PUBLIC_PATH`: Your domain (e.g. `link.example.com`). Used for QR codes and share links.
+- `LINKDROP_DATA_DIR`: Path to the SQLite database and storage.
+- `LINKDROP_PORT`: Port to listen on (default: 8080).
+- `LINKDROP_BIND`: IP to bind to (default: 0.0.0.0).
 
 ## Features
 - **Minimalist UI**: Pure black background, zero distraction.

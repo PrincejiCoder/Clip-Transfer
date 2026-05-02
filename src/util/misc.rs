@@ -1,23 +1,15 @@
 use crate::args::ARGS;
 use linkify::{LinkFinder, LinkKind};
-use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 use qrcode_generator::QrCodeEcc;
-use std::fs::{self, File};
-use std::io::{BufReader, Read, Write};
-
 use std::time::{SystemTime, UNIX_EPOCH};
-
-use crate::Pasta;
-
-
+use crate::pasta::Pasta;
 use std::collections::HashMap;
 
-pub fn remove_expired(pastas: &mut HashMap<String, Pasta>) {
-    // get current time - this will be needed to check which pastas have expired
+pub fn remove_expired(pastas: \u0026mut HashMap\u003cString, Pasta\u003e) {
     let timenow: i64 = match SystemTime::now().duration_since(UNIX_EPOCH) {
-        Ok(n) => n.as_secs(),
-        Err(_) => {
-            log::error!("SystemTime before UNIX EPOCH!");
+        Ok(n) =\u003e n.as_secs(),
+        Err(_) =\u003e {
+            log::error!(\"SystemTime before UNIX EPOCH!\");
             0
         }
     } as i64;
@@ -25,160 +17,30 @@ pub fn remove_expired(pastas: &mut HashMap<String, Pasta>) {
     let mut to_remove = Vec::new();
 
     for (slug, p) in pastas.iter() {
-        // check if:
-        //  expiration is `never` or not reached
-        //  AND
-        //  read count is less than burn limit, or no limit set
-        //  AND
-        //  has been read in the last N days where N is the arg --gc-days OR N is 0 (no GC)
-        if !((p.expiration == 0 || p.expiration > timenow)
-            && (p.read_count < p.burn_after_reads || p.burn_after_reads == 0)
-            && (p.last_read_days_ago() < ARGS.gc_days || ARGS.gc_days == 0))
-        {
+        // Expired or burn limit reached
+        let expired = p.expiration \u003e 0 \u0026\u0026 p.expiration \u003c timenow;
+        let burned = p.burn_after_reads \u003e 0 \u0026\u0026 p.read_count \u003e= p.burn_after_reads;
+        
+        // GC check
+        let days_since_read = (timenow - p.last_read) / 86400;
+        let inactive = ARGS.gc_days \u003e 0 \u0026\u0026 days_since_read \u003e= ARGS.gc_days as i64;
+
+        if expired || burned || inactive {
             to_remove.push(slug.clone());
         }
     }
 
     for slug in to_remove {
-        if let Some(p) = pastas.remove(&slug) {
-            // remove from database
-            if ARGS.json_db {
-                // update_all will be called at the end
-            } else {
-                #[cfg(feature = "default")]
-                super::db_sqlite::delete_by_slug(slug.clone());
-            }
-
-            // remove the file itself
-            if let Some(file) = &p.file {
-                if fs::remove_file(format!(
-                    "{}/attachments/{}/{}",
-                    ARGS.data_dir,
-                    p.slug,
-                    file.name()
-                ))
-                .is_err()
-                {
-                    log::error!("Failed to delete file {}!", file.name())
-                }
-
-                // and remove the containing directory
-                if fs::remove_dir(format!(
-                    "{}/attachments/{}/",
-                    ARGS.data_dir,
-                    p.slug
-                ))
-                .is_err()
-                {
-                    log::error!("Failed to delete directory {}!", file.name())
-                }
-            }
-        }
-    }
-
-    if ARGS.json_db {
-        super::db_json::update_all(pastas);
-    }
-
-    // Find and remove and attachment folders that 
-    // don't actually have an upload in the database pointing
-    // at them. Could be a result of an interrupted upload for example.
-
-    let attachments_path = format!("{}/attachments", ARGS.data_dir);
-    
-    if let Ok(entries) = fs::read_dir(&attachments_path) {
-        for entry in entries.flatten() {
-            if let Ok(file_type) = entry.file_type() {
-                if file_type.is_dir() {
-                    if let Some(dir_name) = entry.file_name().to_str() {
-                        // Found an orphaned upload folder
-                        if !pastas.contains_key(dir_name) {
-                            log::info!("Removing orphaned upload directory: {}", dir_name);
-                            if let Err(e) = fs::remove_dir_all(entry.path()) {
-                                log::error!("Failed to remove orphaned upload {}: {}", dir_name, e);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        pastas.remove(\u0026slug);
     }
 }
 
-pub fn string_to_qr_svg(str: &str) -> String {
-    qrcode_generator::to_svg_to_string(str, QrCodeEcc::Low, 256, None::<&str>).unwrap()
+pub fn string_to_qr_svg(str: \u0026str) -\u003e String {
+    qrcode_generator::to_svg_to_string(str, QrCodeEcc::Low, 256, None::\u003c\u0026str\u003e).unwrap()
 }
 
-pub fn is_valid_url(url: &str) -> bool {
+pub fn is_valid_url(url: \u0026str) -\u003e bool {
     let finder = LinkFinder::new();
-    let spans: Vec<_> = finder.spans(url).collect();
-    spans[0].as_str() == url && Some(&LinkKind::Url) == spans[0].kind()
-}
-
-pub fn encrypt(text_str: &str, key_str: &str) -> String {
-    if text_str.is_empty() {
-        return String::from("");
-    }
-
-    let mc = new_magic_crypt!(key_str, 256);
-
-    mc.encrypt_str_to_base64(text_str)
-}
-
-pub fn decrypt(text_str: &str, key_str: &str) -> Result<String, magic_crypt::MagicCryptError> {
-    if text_str.is_empty() {
-        return Ok(String::from(""));
-    }
-
-    let mc = new_magic_crypt!(key_str, 256);
-
-    mc.decrypt_base64_to_string(text_str)
-}
-
-pub fn encrypt_file(
-    passphrase: &str,
-    input_file_path: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Read the input file into memory
-    let file = File::open(input_file_path).expect("Tried to encrypt non-existent file");
-    let mut reader = BufReader::new(file);
-    let mut input_data = Vec::new();
-    reader.read_to_end(&mut input_data)?;
-
-    // Create a MagicCrypt instance with the given passphrase
-    let mc = new_magic_crypt!(passphrase, 256);
-
-    // Encrypt the input data
-    let ciphertext = mc.encrypt_bytes_to_bytes(&input_data[..]);
-
-    // Write the encrypted data to a new file with the .enc extension
-    let mut f = File::create(format!("{}.enc", input_file_path))?;
-    f.write_all(ciphertext.as_slice())?;
-
-    // Delete the original input file
-    // input_file.seek(SeekFrom::Start(0))?;
-    fs::remove_file(input_file_path)?;
-
-    Ok(())
-}
-
-pub fn decrypt_file(
-    passphrase: &str,
-    input_file: &File,
-) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    // Read the input file into memory
-    let mut reader = BufReader::new(input_file);
-    let mut ciphertext = Vec::new();
-    reader.read_to_end(&mut ciphertext)?;
-
-    // Create a MagicCrypt instance with the given passphrase
-    let mc = new_magic_crypt!(passphrase, 256);
-    // Encrypt the input data
-    let res = mc.decrypt_bytes_to_bytes(&ciphertext[..]);
-
-    if res.is_err() {
-        return Err("Failed to decrypt file".into());
-    }
-
-    Ok(res.unwrap())
+    let spans: Vec\u003c_\u003e = finder.spans(url).collect();
+    !spans.is_empty() \u0026\u0026 spans[0].as_str() == url \u0026\u0026 Some(\u0026LinkKind::Url) == spans[0].kind()
 }
