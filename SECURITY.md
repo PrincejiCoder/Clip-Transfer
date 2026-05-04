@@ -6,4 +6,4 @@ Currently we only have capacity to support the latest version of LinkDrop. We re
 
 ## Reporting a Vulnerability
 
-Security vulnerabilities can be reported directly to the developer at daniel.szabo@mountaineerai.com.
+Security vulnerabilities can be reported directly to the developer at [EMAIL_ADDRESS](98prince.chauhan@gmiail.com)

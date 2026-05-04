@@ -6,7 +6,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0f0f0f">
     <link rel="apple-touch-icon" href="/static/logo-square.png">
-    <title>LinkDrop | Error</title>
+    <title>LinkDrop | Offline</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -54,7 +54,7 @@
             justify-content: center;
         }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .error-content {
+        .offline-content {
             width: 100%;
             max-width: 480px;
             padding: 0 24px;
@@ -66,35 +66,35 @@
     <div class="page-wrapper">
         <header class="bg-black text-white font-inter tracking-tight uppercase font-bold border-b border-zinc-900 z-50">
             <div class="flex justify-between items-center w-full max-w-[640px] mx-auto px-6 h-16">
-                <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                    <span class="material-symbols-outlined text-cyan-400" data-icon="terminal">terminal</span>
+                <a href="/" class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-cyan-400">terminal</span>
                     <span class="text-lg font-black tracking-widest text-white uppercase">LinkDrop</span>
                 </a>
             </div>
         </header>
 
         <main>
-            <div class="error-content space-y-8">
+            <div class="offline-content space-y-8">
                 <div class="relative inline-flex items-center justify-center">
-                    <div class="absolute -inset-4 bg-error/10 blur-2xl rounded-full opacity-50"></div>
+                    <div class="absolute -inset-4 bg-cyan-500/10 blur-2xl rounded-full opacity-50"></div>
                     <div class="relative w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-5xl text-zinc-500">error</span>
+                        <span class="material-symbols-outlined text-5xl text-zinc-500">signal_disconnected</span>
                     </div>
                 </div>
                 
                 <div class="space-y-3">
-                    <h1 class="text-6xl font-black tracking-tighter text-white uppercase">404</h1>
-                    <p class="text-lg font-bold text-zinc-400 uppercase tracking-widest">Resource Not Found</p>
+                    <h1 class="text-4xl font-black tracking-tighter text-white uppercase">Signal Lost</h1>
+                    <p class="text-lg font-bold text-zinc-400 uppercase tracking-widest">Protocol Offline</p>
                 </div>
 
                 <p class="text-zinc-500 text-sm leading-relaxed max-w-[320px] mx-auto">
-                    The drop you're looking for doesn't exist or has been removed from the stealth protocol.
+                    You're disconnected from the secure network. LinkDrop requires an active uplink to sync with the stealth protocol.
                 </p>
 
                 <div class="pt-4">
-                    <a href="/" class="inline-block bg-white text-black font-bold py-4 px-10 rounded-xl transition-all active:scale-95 hover:bg-zinc-200 uppercase tracking-widest text-xs">
-                        Return to Base
-                    </a>
+                    <button onclick="window.location.reload()" class="inline-block bg-white text-black font-bold py-4 px-10 rounded-xl transition-all active:scale-95 hover:bg-zinc-200 uppercase tracking-widest text-xs">
+                        Attempt Reconnection
+                    </button>
                 </div>
             </div>
         </main>
@@ -103,18 +103,5 @@
             <div class="text-[10px] text-zinc-600 uppercase tracking-widest">&copy; 2026 LinkDrop &bull; Secure Protocol</div>
         </footer>
     </div>
-    <script>
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    const reg = await navigator.serviceWorker.register('/static/sw.js');
-                    console.log('SW registered:', reg.scope);
-                } catch (err) {
-                    console.error('SW registration failed:', err);
-                }
-            });
-        }
-    </script>
 </body>
 </html>

@@ -6,8 +6,8 @@ use askama::Template;
 use serde::Deserialize;
 use regex::Regex;
 use lazy_static::lazy_static;
-use std::time::{SystemTime, UNIX_EPOCH};
-use crate::util::misc::{is_valid_url, string_to_qr_svg};
+use chrono::{DateTime, Utc, Duration};
+use crate::util::misc::string_to_qr_svg;
 
 lazy_static! {
     static ref SLUG_REGEX: Regex = Regex::new(r"^[a-z0-9-_]{3,50}$").unwrap();
@@ -38,16 +38,15 @@ struct HomeTemplate<'a> {
 struct CreateTemplate<'a> {
     args: &'a Args,
     slug: String,
-    content: String,
+    content: Option<String>,
 }
 
 #[derive(Template)]
-#[template(path = "view.html", escape = "none")]
+#[template(path = "view.html")]
 struct ViewTemplate<'a> {
     args: &'a Args,
     slug: String,
     pasta: &'a Pasta,
-    highlighted_content: String,
     can_edit: bool,
 }
 
@@ -66,6 +65,12 @@ struct ExpiredTemplate<'a> {
     args: &'a Args,
 }
 
+#[derive(Template)]
+#[template(path = "offline.html")]
+struct OfflineTemplate<'a> {
+    args: &'a Args,
+}
+
 fn normalize_slug(slug: &str) -> String {
     slug.to_lowercase()
         .trim()
@@ -76,14 +81,14 @@ fn normalize_slug(slug: &str) -> String {
         .collect::<String>()
 }
 
-fn expiration_to_timestamp(expiration: &str, timenow: i64) -> i64 {
+fn expiration_to_timestamp(expiration: &str, now: DateTime<Utc>) -> Option<DateTime<Utc>> {
     match expiration {
-        "1hour" => timenow + 3600,
-        "24hour" => timenow + 86400,
-        "1week" => timenow + 604800,
-        "1month" => timenow + 2592000,
-        "never" => 0,
-        _ => timenow + 604800, // default 1 week
+        "1hour" => Some(now + Duration::hours(1)),
+        "24hour" => Some(now + Duration::days(1)),
+        "1week" => Some(now + Duration::weeks(1)),
+        "1month" => Some(now + Duration::days(30)),
+        "never" => None,
+        _ => Some(now + Duration::weeks(1)), // default 1 week
     }
 }
 
@@ -102,7 +107,7 @@ fn apply_security_headers(mut res: HttpResponse) -> HttpResponse {
 #[get("/")]
 pub async fn homepage() -> impl Responder {
     let s = HomeTemplate { args: &ARGS }.render().unwrap();
-    apply_security_headers(HttpResponse::Ok().content_type("text/html").body(s))
+    apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s))
 }
 
 #[get("/{slug}")]
@@ -125,11 +130,11 @@ pub async fn get_slug(
         return apply_security_headers(HttpResponse::BadRequest().body("Invalid keyword format."));
     }
 
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
+    let now = Utc::now();
 
     // 1. Share Mode (?created=true) - PURE UI
     if query.created.as_deref() == Some("true") {
-        let pastas = state.pastas.read().unwrap();
+        let pastas = state.pastas.read().unwrap_or_else(|e| e.into_inner());
         if let Some(_) = pastas.get(&slug) {
             let mut base_url = ARGS.public_path_as_str();
             if base_url.is_empty() {
@@ -147,41 +152,39 @@ pub async fn get_slug(
                 full_url,
                 qr_svg,
             }.render().unwrap();
-            return apply_security_headers(HttpResponse::Ok().content_type("text/html").body(s));
+            return apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s));
         }
     }
 
     // Lock for both read/write to handle expiry and view count atomically
-    let mut pastas = state.pastas.write().unwrap();
+    let mut pastas = state.pastas.write().unwrap_or_else(|e| e.into_inner());
     
     if let Some(mut pasta) = pastas.remove(&slug) {
         // 2. Expired State (Expiry or Burn limit)
-        let is_expired = pasta.expiration > 0 && pasta.expiration < now;
+        let is_expired = pasta.expiration.map_or(false, |e| e <= now);
         let is_burned = pasta.burn_after_reads > 0 && pasta.read_count >= pasta.burn_after_reads;
 
         if is_expired || is_burned {
             let s = ExpiredTemplate { args: &ARGS }.render().unwrap();
-            return apply_security_headers(HttpResponse::Gone().content_type("text/html").body(s));
+            return apply_security_headers(HttpResponse::Gone().content_type("text/html; charset=utf-8").body(s));
         }
 
         // 3. Edit Mode
         if pasta.allow_edit {
             let existing_content = pasta.content.clone();
             pastas.insert(slug.clone(), pasta);
-            let s = CreateTemplate { args: &ARGS, slug, content: existing_content }.render().unwrap();
-            return apply_security_headers(HttpResponse::Ok().content_type("text/html").body(s));
+            let s = CreateTemplate { args: &ARGS, slug, content: Some(existing_content) }.render().unwrap();
+            return apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s));
         }
 
         // 4. View Mode
         pasta.read_count += 1;
         pasta.last_read = now;
         
-        let highlighted = html_escape::encode_text(&pasta.content).to_string();
         let s = ViewTemplate {
             args: &ARGS,
             slug: slug.clone(),
             pasta: &pasta,
-            highlighted_content: highlighted,
             can_edit: pasta.allow_edit,
         }.render().unwrap();
 
@@ -190,12 +193,12 @@ pub async fn get_slug(
             pastas.insert(slug, pasta);
         }
 
-        return apply_security_headers(HttpResponse::Ok().content_type("text/html").body(s));
+        return apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s));
     }
 
     // 5. Create Mode (Fallback)
-    let s = CreateTemplate { args: &ARGS, slug, content: String::new() }.render().unwrap();
-    apply_security_headers(HttpResponse::Ok().content_type("text/html").body(s))
+    let s = CreateTemplate { args: &ARGS, slug, content: None }.render().unwrap();
+    apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s))
 }
 
 #[post("/{slug}")]
@@ -220,8 +223,8 @@ pub async fn post_slug(
         return apply_security_headers(HttpResponse::BadRequest().body("Content too large."));
     }
 
-    let mut pastas = state.pastas.write().unwrap();
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
+    let mut pastas = state.pastas.write().unwrap_or_else(|e| e.into_inner());
+    let now = Utc::now();
 
     if let Some(existing) = pastas.get(&slug) {
         if !existing.allow_edit {
@@ -229,12 +232,9 @@ pub async fn post_slug(
         }
     }
 
-    // Sanitize content (basic escaping)
-    let sanitized_content = form.content.clone(); // Template handles most escaping, but we could add more here if needed.
-
     let pasta = Pasta {
         slug: slug.clone(),
-        content: sanitized_content,
+        content: form.content.clone(),
         allow_edit: form.allow_edit.is_some(),
         created: now,
         expiration: expiration_to_timestamp(&form.expiration, now),
@@ -256,7 +256,7 @@ pub async fn get_raw(
     path: web::Path<String>,
 ) -> impl Responder {
     let slug = normalize_slug(&path.into_inner());
-    let pastas = state.pastas.read().unwrap();
+    let pastas = state.pastas.read().unwrap_or_else(|e| e.into_inner());
 
     if let Some(pasta) = pastas.get(&slug) {
         return apply_security_headers(
@@ -267,4 +267,10 @@ pub async fn get_raw(
     }
 
     apply_security_headers(HttpResponse::NotFound().finish())
+}
+
+#[get("/offline")]
+pub async fn offline() -> impl Responder {
+    let s = OfflineTemplate { args: &ARGS }.render().unwrap();
+    apply_security_headers(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s))
 }

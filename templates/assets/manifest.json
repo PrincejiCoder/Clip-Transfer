@@ -1,0 +1,23 @@
+{
+  "name": "LinkDrop",
+  "short_name": "LinkDrop",
+  "description": "Secure Stealth Protocol for Link Sharing",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0f0f0f",
+  "icons": [
+    {
+      "src": "/static/logo-square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

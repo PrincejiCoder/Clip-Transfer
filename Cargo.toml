@@ -1,34 +1,38 @@
 [package]
-name = \"linkdrop\"
-version = \"0.1.0\"
-edition = \"2021\"
-rust-version = \"1.74.0\"
-authors = [\"Antigravity \u003cantigravity@linkdrop.io\u003e\"]
-license = \"BSD-3-Clause\"
-description = \"High-performance, URL-driven, self-hosted paste service with a minimalist dark aesthetic.\"
-readme = \"README.md\"
-homepage = \"https://github.com/PrincejiCoder/Clip-Transfer\"
-repository = \"https://github.com/PrincejiCoder/Clip-Transfer\"
-keywords = [\"pastebin\", \"filesharing\", \"linkdrop\", \"actix\", \"selfhosted\"]
+name = "linkdrop"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74.0"
+authors = ["Antigravity <antigravity@linkdrop.io>"]
+license = "BSD-3-Clause"
+description = "High-performance, URL-driven, self-hosted paste service with a minimalist dark aesthetic."
+readme = "README.md"
+homepage = "https://github.com/PrincejiCoder/Clip-Transfer"
+repository = "https://github.com/PrincejiCoder/Clip-Transfer"
+keywords = ["pastebin", "filesharing", "linkdrop", "actix", "selfhosted"]
 
 [dependencies]
-actix-files = \"0.6.6\"
-actix-web = { version = \"4\", default-features = false, features = [\"compat\", \"compress-brotli\", \"compress-gzip\", \"cookies\", \"http2\", \"macros\", \"unicode\"] }
-askama = \"0.10\"
-chrono = \"0.4.19\"
-clap = { version = \"3.1.12\", features = [\"derive\", \"env\"] }
-env_logger = \"0.9.0\"
-html-escape = \"0.2.13\"
-lazy_static = \"1.4.0\"
-linkify = \"0.10.0\"
-log = \"0.4.21\"
-qrcode-generator = \"4.1.9\"
-regex = \"1\"
-serde = { version = \"1.0.197\", features = [\"derive\"] }
-
+actix-files = "0.6.6"
+actix-web = { version = "4.9.0", default-features = false, features = ["compat", "compress-brotli", "compress-gzip", "cookies", "http2", "macros", "unicode"] }
+askama = "0.10.5"
+chrono = { version = "0.4.38", features = ["serde"] }
+clap = { version = "3.2.25", features = ["derive", "env"] }
+env_logger = "0.9.0"
+html-escape = "0.2.13"
+lazy_static = "1.4.0"
+linkify = "0.10.0"
+log = "0.4.21"
+qrcode-generator = "4.1.9"
+regex = "1.11.0"
+serde = { version = "1.0.197", features = ["derive"] }
+rust-embed = "8.5.0"
+mime_guess = "2.0.5"
+actix-ws = "0.3.0"
+serde_json = "1.0.114"
+futures-util = "0.3.31"
 [profile.release]
 lto = true
 strip = true
-panic = \"abort\"
+panic = "abort"
 codegen-units = 1
-opt-level = \"z\"
+opt-level = "z"

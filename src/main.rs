@@ -10,7 +10,7 @@ use log::LevelFilter;
 use std::fs;
 use std::io::Write;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 
@@ -25,18 +25,50 @@ pub mod endpoints {
     pub mod errors;
     pub mod static_resources;
     pub mod core_routes;
+    pub mod webrtc_routes;
 }
 
 pub struct AppState {
     pub pastas: RwLock<HashMap<String, Pasta>>,
+    pub webrtc_rooms: web::Data<crate::endpoints::webrtc_routes::WebRTCRooms>,
 }
 
 fn start_cleanup_thread(state: web::Data<AppState>) {
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs(60));
-            if let Ok(mut pastas) = state.pastas.write() {
+            
+            // 1. Cleanup expired pastas
+            {
+                let mut pastas = state.pastas.write().unwrap_or_else(|e| e.into_inner());
                 crate::util::misc::remove_expired(&mut pastas);
+            }
+
+            // 2. Cleanup expired WebRTC rooms (30 mins TTL)
+            {
+                let mut rooms = state.webrtc_rooms.write().unwrap_or_else(|e| e.into_inner());
+                let now = chrono::Utc::now();
+                let mut expired_slugs = Vec::new();
+
+                for (slug, room) in rooms.iter() {
+                    if now.signed_duration_since(room.created_at).num_minutes() >= 30 {
+                        expired_slugs.push(slug.clone());
+                    }
+                }
+
+                for slug in expired_slugs {
+                    if let Some(room) = rooms.remove(&slug) {
+                        log::info!("Cleaning up expired WebRTC room: {}", slug);
+                        // Notify peers before closing
+                        for (_, session) in room.sessions {
+                            let mut s = session.clone();
+                            actix_web::rt::spawn(async move {
+                                let _ = s.text(serde_json::to_string(&crate::endpoints::webrtc_routes::WebRTCMessage::SessionExpired).unwrap()).await;
+                                let _ = s.close(None).await;
+                            });
+                        }
+                    }
+                }
             }
         }
     });
@@ -72,8 +104,11 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
+    let webrtc_rooms = web::Data::new(Arc::new(RwLock::new(HashMap::new())));
+
     let data = web::Data::new(AppState {
         pastas: RwLock::new(HashMap::new()),
+        webrtc_rooms: webrtc_rooms.clone(),
     });
 
     start_cleanup_thread(data.clone());
@@ -89,6 +124,9 @@ async fn main() -> std::io::Result<()> {
             .service(static_resources::static_resources)
             .service(endpoints::core_routes::get_slug)
             .service(endpoints::core_routes::post_slug)
+            .service(endpoints::core_routes::offline)
+            .service(endpoints::webrtc_routes::turn_credentials)
+            .route("/ws/{slug}", web::get().to(endpoints::webrtc_routes::ws_handler))
             .default_service(web::route().to(errors::not_found))
     })
     .bind((ARGS.bind, ARGS.port))?

@@ -4,8 +4,22 @@ A minimalist, high-speed paste service built in Rust. Designed for privacy, OLED
 
 ## Run with Docker
 
+### Bash (Linux/macOS)
 ```bash
-docker run -p 8080:8080 \ -e LINKDROP_PUBLIC_PATH=your-domain.com \ -v ${PWD}/data:/app/LINKDROP_data \linkdrop
+docker run -d \
+  -p 8080:8080 \
+  -e LINKDROP_PUBLIC_PATH=https://footnote-playhouse-blinker.ngrok-free.dev/ \
+  -v $(pwd)/data:/app/LINKDROP_data \
+  princechauhan12/linkdrop:latest
+```
+
+### PowerShell (Windows)
+```powershell
+docker run -d `
+  -p 8080:8080 `
+  -e LINKDROP_PUBLIC_PATH=https://your-domain.com `
+  -v "${PWD}/data:/app/LINKDROP_data" `
+  princechauhan12/linkdrop:latest
 ```
 
 ## Config

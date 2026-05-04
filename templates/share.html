@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>LinkDrop | Link Created</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0f0f0f">
+    <link rel="apple-touch-icon" href="/static/logo-square.png">
+    <title>LinkDrop | Link Created</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -30,7 +32,7 @@
                         "primary-fixed": "#e2e2e2",
                         "surface-container-low": "#1b1c1c",
                         "surface-container-highest": "#343535",
-                        "background": "#121414",
+                        "background": "#000000",
                         "on-secondary-fixed": "#002022",
                         "on-primary": "#2f3131",
                         "tertiary": "#ffffff",
@@ -44,12 +46,7 @@
                         "tertiary-container": "#e5e2e1",
                         "on-error": "#690005",
                         "secondary": "#d3fbff",
-                        "surface-bright": "#383939",
-                        "inverse-on-surface": "#303031",
-                        "surface-tint": "#c6c6c7",
-                        "on-secondary": "#00363a",
-                        "inverse-primary": "#5d5f5f",
-                        "surface": "#121414",
+                        "surface": "#000000",
                         "secondary-fixed-dim": "#00dbe9",
                         "on-primary-fixed-variant": "#454747",
                         "on-tertiary-container": "#656464",
@@ -97,88 +94,223 @@
             },
         }
     </script>
-<style>
-        body { background-color: #000000; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    <style>
+        :root {
+            --vh: 100dvh;
         }
-        .qr-gradient {
-            background: linear-gradient(135deg, #00eefc 0%, #121414 100%);
+        @supports not (height: 100dvh) {
+            :root {
+                --vh: -webkit-fill-available;
+            }
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            height: var(--vh);
+            margin: 0;
+            padding: 0;
+            overscroll-behavior-y: none;
+        }
+        body {
+            background-color: #000000;
+            color: #e3e2e2;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .page-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        header, footer {
+            flex: 0 0 auto;
+            flex-shrink: 0;
+        }
+        main {
+            flex: 1;
+            min-height: 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .share-content {
+            width: 100%;
+            max-width: 640px;
+            padding: 0 24px;
+            text-align: center;
+        }
+        .qr-container {
+            width: 100%;
+            max-width: 280px;
+            min-width: 180px;
+            aspect-ratio: 1 / 1;
+            padding: 16px;
+            background: #ffffff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin: 0 auto;
+        }
+        .qr-container svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+        .qr-fallback {
+            color: #000000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            word-break: break-all;
+            text-align: center;
+            padding: 8px;
         }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="antialiased text-on-background font-body-md overflow-x-hidden">
-<!-- Success Shell suppression logic applied: Navigation hidden to focus on the transaction/share goal -->
-<main class="min-h-screen flex flex-col items-center justify-center px-gutter py-stack-lg max-w-[640px] mx-auto">
-<!-- Header Brand Anchor (Static variant for focused state) -->
-<div class="mb-stack-lg text-center">
-<div class="inline-flex items-center gap-2 mb-4">
-<a href="/" class="flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary-container text-h1">terminal</span>
-<h1 class="font-display text-h1 uppercase tracking-widest text-primary">LINKDROP</h1>
-</a>
-</div>
-<p class="text-on-surface-variant font-body-md">Your drop is ready for the world.</p>
-</div>
-<!-- Share Card (Level 1 Surface) -->
-<div class="w-full bg-[#121212] border border-[#222222] rounded-xl p-8 flex flex-col items-center gap-stack-md shadow-2xl relative overflow-hidden">
-<!-- Stylized QR Code -->
-<div class="relative group">
-<div class="absolute -inset-4 bg-secondary-container/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
-<div class="relative w-64 h-64 bg-[#000000] border-4 border-secondary-container rounded-xl p-4 flex items-center justify-center">
-{{ qr_svg }}
-</div>
-</div>
-<!-- Link URL -->
-<div class="w-full space-y-2 text-center mt-4">
-<span class="font-label-caps text-on-tertiary-fixed-variant uppercase">PUBLIC URL</span>
-<div id="url-container" class="bg-black/40 border border-[#222222] rounded-lg py-4 px-6 select-all cursor-pointer hover:border-secondary-container transition-colors group">
-<code id="full-url" class="font-mono text-body-lg text-secondary-container break-all">{{ full_url }}</code>
-</div>
-</div>
-<!-- Actions -->
-<div class="flex flex-col w-full gap-4 mt-2">
-<button id="copy-url-btn" class="w-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary font-bold text-body-md py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-<span class="material-symbols-outlined">content_copy</span>
-                    Copy URL
-                </button>
-<a href="/{{ slug }}" class="w-full bg-transparent border border-primary/20 hover:border-primary/60 text-primary font-medium text-body-md py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-<span class="material-symbols-outlined">visibility</span>
-                    View Content
+</head>
+<body class="antialiased text-on-background font-body-md selection:bg-secondary-container selection:text-on-secondary-container">
+    <div class="page-wrapper">
+        <header class="bg-black text-zinc-600 font-inter tracking-tight uppercase font-bold border-b border-zinc-900 z-50">
+            <div class="flex justify-between items-center w-full max-w-[640px] mx-auto px-4 h-16">
+                <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                    <span class="material-symbols-outlined text-cyan-400" data-icon="terminal">terminal</span>
+                    <h1 class="text-lg font-black tracking-widest text-white uppercase">LinkDrop</h1>
                 </a>
-</div>
-</div>
-<!-- Back to Dashboard Link -->
-<a class="mt-stack-lg group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors" href="/">
-<span class="material-symbols-outlined text-[18px]">arrow_back</span>
-<span class="font-label-caps">Back to my drops</span>
-</a>
-</main>
-<script>
-    const copyUrlBtn = document.getElementById('copy-url-btn');
-    const fullUrl = document.getElementById('full-url').innerText;
-    const toast = document.getElementById('copy-toast');
+                <a href="/" class="text-zinc-600 hover:text-cyan-400 transition-colors active:scale-95 p-2">
+                    <span class="material-symbols-outlined" data-icon="home">home</span>
+                </a>
+            </div>
+        </header>
 
-    copyUrlBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(fullUrl).then(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(1rem)';
-            }, 2000);
-        });
-    });
-</script>
-<div id="copy-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[100] opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
-<div class="bg-[#181818]/80 backdrop-blur-[20px] border border-[#333333] px-6 py-3 rounded-full flex items-center gap-3">
-<span class="material-symbols-outlined text-secondary-container">check_circle</span>
-<span class="font-body-md text-primary">URL copied to clipboard</span>
-</div>
-</div>
-</body></html>
+        <main>
+            <div class="share-content">
+                <div class="mb-stack-md text-center">
+                    <p class="text-secondary-container font-label-caps tracking-widest uppercase mb-2">Drop Created Successfully</p>
+                    <p class="text-zinc-500 text-sm">Your secure link is ready for the world.</p>
+                </div>
+
+                <div id="transfer-panel" class="hidden w-full border border-zinc-800 rounded-xl bg-surface-container p-6 space-y-4 text-left animate-in fade-in slide-in-from-bottom-4 duration-300 mt-6">
+                    <div class="flex items-center justify-between">
+                        <h3 id="transfer-status" class="text-white font-bold uppercase tracking-wider text-xs">Initializing...</h3>
+                        <button type="button" id="cancel-transfer" class="text-zinc-500 hover:text-white">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
+                    </div>
+                    
+                    <div id="file-info" class="hidden">
+                        <div class="flex items-center gap-3 bg-black/40 p-3 rounded-lg border border-zinc-800">
+                            <span class="material-symbols-outlined text-cyan-400">description</span>
+                            <div class="min-w-0 flex-1">
+                                <p id="file-name" class="text-white text-sm font-medium truncate">filename.ext</p>
+                                <p id="file-size" class="text-zinc-500 text-xs">0 KB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="progress-container" class="hidden space-y-2">
+                        <div class="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-cyan-400 w-0 transition-all duration-300"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                            <span id="progress-text">0%</span>
+                            <span id="speed-text">0 KB/s</span>
+                        </div>
+                    </div>
+
+                    <div id="failure-state" class="hidden space-y-4">
+                        <p id="error-message" class="text-error text-xs">Transfer failed.</p>
+                        <button type="button" id="retry-button" class="w-full bg-zinc-800 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-700 transition-colors">
+                            Retry Transfer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="w-full bg-surface-container border border-zinc-900 rounded-xl p-8 flex flex-col items-center gap-6 shadow-2xl relative overflow-hidden mt-6">
+                    <div class="relative group">
+                        <div class="absolute -inset-4 bg-secondary-container/5 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative w-48 h-48 bg-black border-2 border-secondary-container/30 rounded-xl p-3 flex items-center justify-center qr-container">
+                            {{ qr_svg|safe }}
+                        </div>
+                    </div>
+
+                    <div class="w-full space-y-2 text-center mt-2">
+                        <span class="font-label-caps text-zinc-600 text-[10px] uppercase tracking-widest">Public URL</span>
+                        <div id="url-container" class="bg-black border border-zinc-800 rounded-lg py-4 px-6 select-all cursor-pointer hover:border-secondary-container transition-colors group">
+                            <code id="full-url" class="font-mono text-sm text-secondary-container break-all">{{ full_url }}</code>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col w-full gap-3 mt-2">
+                        <button id="copy-url-btn" class="w-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary font-bold text-sm py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
+                            <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            <span>Copy URL</span>
+                        </button>
+                        <a href="/{{ slug }}" class="w-full bg-transparent border border-zinc-800 hover:border-zinc-500 text-white font-medium text-sm py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            <span>View Content</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a class="mt-8 inline-flex items-center gap-2 text-zinc-600 hover:text-white transition-colors text-[10px] uppercase tracking-widest" href="/">
+                    <span class="material-symbols-outlined text-[14px]">arrow_back</span>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+        </main>
+
+        <footer class="bg-black py-6 border-t border-zinc-900 text-center">
+            <div class="text-[10px] text-zinc-600 uppercase tracking-widest px-4">&copy; 2026 LinkDrop &bull; Secure Stealth Protocol</div>
+        </footer>
+    </div>
+
+    <div id="copy-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
+        <div class="bg-surface-container-high/90 backdrop-blur-xl border border-zinc-800 px-6 py-3 rounded-full flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary-container">check_circle</span>
+            <span class="font-label-caps text-[10px] text-white uppercase tracking-widest">URL copied to clipboard</span>
+        </div>
+    </div>
+
+    <script src="/static/fileStore.js"></script>
+    <script src="/static/signalingClient.js"></script>
+    <script src="/static/rtcEngine.js"></script>
+    <script src="/static/uiController.js"></script>
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const reg = await navigator.serviceWorker.register('/static/sw.js');
+                } catch (err) {}
+            });
+        }
+
+        const slug = "{{ slug }}";
+
+        // Copy URL Logic
+        const copyUrlBtn = document.getElementById('copy-url-btn');
+        const urlContainer = document.getElementById('url-container');
+        const fullUrlText = document.getElementById('full-url').innerText;
+        const toast = document.getElementById('copy-toast');
+
+        const copyAction = () => {
+            navigator.clipboard.writeText(fullUrlText).then(() => {
+                toast.classList.remove('opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-4');
+                }, 2000);
+            });
+        };
+
+        copyUrlBtn.addEventListener('click', copyAction);
+        urlContainer.addEventListener('click', copyAction);
+    </script>
+</body>
+</html>
